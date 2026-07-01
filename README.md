@@ -73,4 +73,4 @@ We've built a live, interactive transit simulation that visually calculates rela
 Our XGBoost model effectively handles class imbalance utilizing dynamic `scale_pos_weight` tuning. It achieves a near-perfect Precision-Recall AUC of **0.9995** by leveraging fundamental transit features such as orbital period (`koi_period`) and transit duration (`koi_duration`).
 
 ---
-*Built with ❤️ for astronomy and data science.*
+*Built with 💝 for astronomy and data science.*
