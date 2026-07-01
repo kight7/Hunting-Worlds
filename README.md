@@ -21,6 +21,8 @@ We've built a live, interactive transit simulation that visually calculates rela
 
 👉 **To view**: Simply drag and drop `docs/index.html` into your web browser, or launch a local live server.
 
+![Transit Simulation Demonstration](docs/transit_simulation.webp)
+
 ---
 
 ## 📁 Project Structure
