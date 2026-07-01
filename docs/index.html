@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet Transit Simulation</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --text-color: #c5c6c7;
+            --accent-color: #66fcf1;
+            --star-color: #fceea7;
+            --planet-color: #1a1a2e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .simulation-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .space-view {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .star {
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle at 30% 30%, #fff, var(--star-color) 60%, #ff9d00 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px 10px rgba(252, 238, 167, 0.6),
+                        0 0 120px 30px rgba(252, 238, 167, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .planet {
+            width: 30px;
+            height: 30px;
+            background: var(--planet-color);
+            border-radius: 50%;
+            position: absolute;
+            z-index: 2;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: inset -4px -4px 10px rgba(0,0,0,0.9);
+            left: -100px; /* starts off-screen */
+        }
+
+        .chart-container {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            height: 220px;
+            display: block;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        button {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            padding: 0.75rem 2rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            width: 140px;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        .sliders-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-color);
+            transition: transform 0.1s;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Exoplanet Transit</h1>
+    
+    <div class="simulation-container">
+        <!-- Space View -->
+        <div class="space-view" id="spaceView">
+            <div class="star" id="star"></div>
+            <div class="planet" id="planet"></div>
+        </div>
+
+        <!-- Chart View -->
+        <div class="chart-container">
+            <canvas id="fluxChart"></canvas>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button id="playPauseBtn">Pause</button>
+            <div class="sliders-container">
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span>Planet Radius ($R_p$)</span>
+                        <span id="radiusValue">1.0 $R_J$</span>
+                    </div>
+                    <input type="range" id="radiusSlider" min="0.1" max="2.0" step="0.1" value="1.0">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-header">
+                        <span>Orbital Speed (Duration)</span>
+                        <span id="speedValue">1.0x</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="0.5" max="3.0" step="0.1" value="1.0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants & State
+        const canvas = document.getElementById('fluxChart');
+        const ctx = canvas.getContext('2d');
+        const planetEl = document.getElementById('planet');
+        const spaceView = document.getElementById('spaceView');
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusValue = document.getElementById('radiusValue');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+
+        // Setup Canvas Resolution
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = 220;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Animation State
+        let isPlaying = true;
+        let time = 0;
+        let animationId;
+        const totalDuration = 400; // arbitrary time units for one full loop
+        
+        // Physical Parameters
+        let rp = parseFloat(radiusSlider.value); // planet radius multiplier
+        let speedMult = parseFloat(speedSlider.value); // speed multiplier
+        const rs = 5.0; // arbitrary star radius reference
+        const starDOMWidth = 140; // width of star in px
+        
+        // Data History for Chart
+        const historyLength = totalDuration;
+        let fluxHistory = new Array(historyLength).fill(1.0);
+
+        // Update Planet Size visually
+        function updatePlanetVisuals() {
+            // Map rp (0.1 - 2.0) to pixel size (approx 5px to ~60px)
+            const pixelSize = (rp / 2.0) * (starDOMWidth * 0.45);
+            planetEl.style.width = `${pixelSize}px`;
+            planetEl.style.height = `${pixelSize}px`;
+        }
+
+        radiusSlider.addEventListener('input', (e) => {
+            rp = parseFloat(e.target.value);
+            radiusValue.textContent = `${rp.toFixed(1)} R_J`;
+            updatePlanetVisuals();
+        });
+        
+        speedSlider.addEventListener('input', (e) => {
+            speedMult = parseFloat(e.target.value);
+            speedValue.textContent = `${speedMult.toFixed(1)}x`;
+        });
+        
+        playPauseBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playPauseBtn.textContent = isPlaying ? "Pause" : "Play";
+        });
+
+        // Calculate Flux Drop using ΔF/L ≈ (Rp/R★)²
+        function calculateFlux(t) {
+            // Normalize time from 0 to 1 over the duration
+            let progress = (t % totalDuration) / totalDuration;
+            
+            // The transit happens roughly in the middle 
+            const transitStart = 0.35;
+            const transitEnd = 0.65;
+            const transitMid = 0.5;
+            
+            let flux = 1.0;
+            
+            if (progress > transitStart && progress < transitEnd) {
+                // Depth = (Rp / Rs)^2
+                const maxDepth = Math.pow((rp / rs), 2) * 1.5; // Multiplier for visual emphasis
+                
+                // Distance from center of transit (0 to 1)
+                const distFromCenter = Math.abs(progress - transitMid) / ((transitEnd - transitStart) / 2);
+                
+                // U-shape calculation for limb darkening (1 - x^4 for a flatter bottom transit curve)
+                const limbDarkening = 1 - Math.pow(distFromCenter, 4);
+                
+                flux = 1.0 - (maxDepth * limbDarkening);
+            }
+            return flux;
+        }
+
+        // Main Animation Loop
+        function animate() {
+            if (isPlaying) {
+                // Apply speed multiplier to time
+                time += speedMult;
+                
+                // Animate Planet visually across the space view
+                let progress = (time % totalDuration) / totalDuration;
+                
+                const spaceWidth = spaceView.clientWidth;
+                const startX = -100;
+                const endX = spaceWidth + 100;
+                const currentX = startX + (endX - startX) * progress;
+                
+                planetEl.style.transform = `translate(${currentX}px, -50%)`;
+                
+                // Update Flux Array
+                const currentFlux = calculateFlux(time);
+                fluxHistory.shift(); 
+                fluxHistory.push(currentFlux);
+            }
+            
+            drawChart();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function drawChart() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            // Draw Grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=1; i<=4; i++) {
+                const y = i * (h/5);
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+            }
+            ctx.stroke();
+
+            // Plot Data
+            ctx.beginPath();
+            ctx.strokeStyle = '#66fcf1';
+            ctx.lineWidth = 3;
+            
+            // Scale Y so that 1.0 is near the top (10% padding), and min flux is near bottom
+            // Max depth mathematically with Rp=2.0 is roughly ~0.24, meaning min flux ~0.76
+            const yMin = 0.70;
+            const yMax = 1.02;
+            
+            for (let i = 0; i < historyLength; i++) {
+                const x = (i / historyLength) * w;
+                const val = fluxHistory[i];
+                
+                const y = h - ((val - yMin) / (yMax - yMin)) * h;
+                
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            
+            // Add Glow
+            ctx.shadowColor = '#66fcf1';
+            ctx.shadowBlur = 8;
+            ctx.stroke();
+            ctx.shadowBlur = 0; // reset
+            
+            // Draw Axes Labels
+            ctx.fillStyle = '#888';
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillText('Relative Flux', 15, 25);
+            
+            // Y-axis tick mark for 1.0
+            const yPos1 = h - ((1.0 - yMin) / (yMax - yMin)) * h;
+            ctx.fillText('1.0', 15, yPos1 - 8);
+            
+            // Draw horizontal dotted line at 1.0
+            ctx.beginPath();
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.moveTo(0, yPos1);
+            ctx.lineTo(w, yPos1);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // Initialize
+        updatePlanetVisuals();
+        animate();
+    </script>
+</body>
+</html>
