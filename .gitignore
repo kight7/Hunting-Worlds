@@ -1,5 +1,18 @@
-venv/
+# Python
 __pycache__/
-*.pyc
-.ipynb_checkpoints/
-.DS_Store
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Data files
+data/*.csv
+
+# Models
+models/*.pkl
+
+# Jupyter
+.ipynb_checkpoints
