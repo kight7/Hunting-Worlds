@@ -17,7 +17,7 @@ Welcome to **Hunting Worlds**, an end-to-end machine learning pipeline built to 
 
 ## 🚀 Interactive Simulation
 
-We've built a live, interactive transit simulation that visually calculates relative flux drops ($\Delta F / L \approx (R_p / R_*)^2$) in real-time. You can adjust the **Planet Size** and **Orbital Speed** live to see how it affects the light curve!
+I've built a live, interactive transit simulation that visually calculates relative flux drops ($\Delta F / L \approx (R_p / R_*)^2$) in real-time. You can adjust the **Planet Size** and **Orbital Speed** live to see how it affects the light curve!
 
 👉 **To view**: Simply drag and drop `docs/index.html` into your web browser, or launch a local live server.
 
