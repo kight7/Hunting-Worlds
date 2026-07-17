@@ -4,7 +4,8 @@
 ![XGBoost](https://img.shields.io/badge/Model-XGBoost-orange?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
 
-Welcome to **Hunting Worlds**, an end-to-end machine learning pipeline built to classify Kepler Objects of Interest (KOIs) as either **Confirmed Exoplanets** or **False Positives**. 
+Welcome to **The Viltrumite Dream**, an end-to-end machine learning pipeline built to classify Kepler Objects of Interest (KOIs) as either **Confirmed Exoplanets** or **False Positives**. 
+A tribute to the Invincible Series < The Viltrumite Empire Finding a suitable planet to conquer >
 
 ## ✨ Features
 
