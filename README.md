@@ -1,4 +1,4 @@
-# 🪐 Hunting Worlds: Exoplanet Classification
+# 🪐 The Viltrumite Dream : Exoplanet Classification
 
 ![NASA Exoplanet Archive](https://img.shields.io/badge/Data-NASA_Exoplanet_Archive-130030?style=for-the-badge&logo=nasa)
 ![XGBoost](https://img.shields.io/badge/Model-XGBoost-orange?style=for-the-badge)
